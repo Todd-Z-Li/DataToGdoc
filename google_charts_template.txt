@@ -1,0 +1,37 @@
+<html>
+  <head>
+    <!--Load the AJAX API-->
+    <script type="text/javascript" src="https://www.google.com/jsapi"></script>
+    <script type="text/javascript">
+
+      // Load the Visualization API and the piechart package.
+      google.load('visualization', '1.0', {'packages':['corechart','table']});
+
+      // Set a callback to run when the Google Visualization API is loaded.
+      google.setOnLoadCallback(drawChart);
+
+      // Callback that creates and populates a data table,
+      // instantiates the pie chart, passes in the data and
+      // draws it.
+
+
+     function drawChart() {
+     //TODD's EDIT: this part is replaced by the string wildcard in order to allow editing from python
+
+         %s
+
+        }
+    </script>
+ </head>
+
+ <body>
+    <!--Div that will hold the pie chart-->
+    <table>
+    <tr> <th id = "header" font size = "30" alight="center" colspan="2">Chain Overview Report for %s</th></tr>
+    <tr> <td><div id="chart_div11"></div></td> <td><div id="chart_div12"></div></td> </tr>
+    <tr> <td><div id="chart_div21"></div></td> <td><div id="chart_div22"></div></td> </tr>
+    <tr> <td><div id="chart_div31" colspan="2"></div><td>
+
+    </table>
+  </body>
+</html>
