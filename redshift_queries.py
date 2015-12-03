@@ -30,29 +30,32 @@ today = datetime.datetime.now()
 
 #these return a pandas dataframe (for now...)
 
-def monthly_checkins_and_new_users (chain_id, year=2015):
+def monthly_checkins_and_new_users (chain_id):
     engine = create_engine(ENGINE_STRING)
     result = pd.read_sql_query("""SELECT EXTRACT(YEAR FROM bc.created_at) AS year,
                                     EXTRACT(MONTH FROM bc.created_at) AS month,
+                                    EXTRACT(YEAR FROM bc.created_at)::varchar || '-' || EXTRACT(MONTH FROM bc.created_at)::varchar as year_month,
                                     COUNT(DISTINCT bc.id) AS checkin_count,
                                     COUNT(DISTINCT CASE WHEN (prev_checkin.id IS NULL) THEN bc.user_id ELSE NULL END) AS new_member_count
                                   FROM bellyflop_businesses bb
                                     JOIN bellyflop_checkins bc ON bc.business_id = bb.id
                                     LEFT OUTER JOIN bellyflop_checkins prev_checkin
-                                      ON prev_checkin.business_id IN (SELECT id FROM bellyflop_businesses WHERE chain_id = 25693)
+                                      ON prev_checkin.business_id IN (SELECT id FROM bellyflop_businesses WHERE chain_id = %s)
                                         AND prev_checkin.user_id = bc.user_id
                                         AND prev_checkin.created_at <= bc.created_at
                                         AND prev_checkin.id != bc.id
-                                  WHERE bb.chain_id = %s and extract(year from bc.created_at) >= %s
+                                  WHERE bb.chain_id = %s and bc.created_at >= dateadd(day, -365, getdate())
                                     AND bc.points > 0
-                                  GROUP BY 1,2
+                                  GROUP BY 1,2,3
                                   ORDER BY 1,2
-        """ % (chain_id,year), engine)
+        """ % (chain_id, chain_id), engine)
     return result
+
+
 
 def total_checkin_and_users (chain_id):
     engine = create_engine(ENGINE_STRING)
-    result = pd.read_sql_query(""" bb.id as business_id, bb.name as business_name, COUNT(DISTINCT bc.id) AS checkins,
+    result = pd.read_sql_query("""select bb.id as business_id, bb.name as business_name, COUNT(DISTINCT bc.id) AS checkins,
                                    COUNT(DISTINCT bc.user_id) AS users
                                   FROM bellyflop_businesses bb
                                     JOIN bellyflop_checkins bc ON bc.business_id = bb.id
@@ -67,35 +70,35 @@ def avg_monthly_checkins_and_users (chain_id):
     engine = create_engine(ENGINE_STRING)
     result = pd.read_sql_query("""SELECT bb.id AS business_id,
                                     bb.name AS business_name,
-                                    MIN(bc.created_at) AS first_checkin_at,
-                                    MAX(bc.created_at) AS first_checkin_at,
-                                    30*COUNT(DISTINCT bc.id)/datediff(days,MIN(bc.created_at),max(bc.created_at)) AS avg_monthly_checkin_count,
-                                    30*COUNT(DISTINCT bc.user_id)/datediff(days,MIN(bc.created_at),max(bc.created_at)) AS avg_monthly_new_member_count
+                                    30*COUNT(DISTINCT bc.id)/datediff(day, min(bc.created_at), getdate()) AS avg_monthly_checkin_count,
+                                    30*COUNT(DISTINCT bc.user_id)/datediff(day, min(bc.created_at), getdate()) AS avg_monthly_new_member_count,
+                                    bb.sub_category_id as sub_category,
+                                    datediff(day, min(bc.created_at), getdate()) as age
                                   FROM bellyflop_businesses bb
                                     LEFT OUTER JOIN bellyflop_checkins bc ON bc.business_id = bb.id
                                   WHERE bb.chain_id = %s
                                     AND bc.points > 0
-                                  GROUP BY 1,2;
+                                  GROUP BY 1,2,5
                                   ORDER by 1
         """ % (chain_id), engine)
     return result
 
 def current_rewards (chain_id):
     engine = create_engine(ENGINE_STRING)
-    result = pd.read_sql_query("""SELECT br.points AS points,
+    result = pd.read_sql_query("""SELECT
                                     br.description AS reward_description,
                                     br.created_at AS reward_created_at,
-                                    br.updated_at AS reward_updated_at,
                                     br.deleted_at AS reward_deleted_at,
-                                    COUNT(DISTINCT bp.id) AS purchase_count,
+                                    br.points AS points,
+                                    COUNT(DISTINCT bp.id) AS redemption_count,
                                     COUNT(DISTINCT bp.user_id) AS purchaser_count
                                   FROM bellyflop_businesses bb
                                     LEFT OUTER JOIN bellyflop_business_rewards bbr ON bbr.business_id = bb.id
                                     LEFT OUTER JOIN bellyflop_rewards br ON br.id = bbr.reward_id
                                     LEFT OUTER JOIN bellyflop_purchases bp ON bp.reward_id = br.id
-                                  WHERE bb.chain_id = 25693
-                                  GROUP BY 1,2,3,4,5
-                                  ORDER BY 1 DESC;
+                                  WHERE bb.chain_id = %s
+                                  GROUP BY 1,2,3,4
+                                  ORDER BY 5 DESC;
         """ % (chain_id), engine)
     return result
 
@@ -111,7 +114,7 @@ def time_between_visits (chain_id):
                                   FROM bellyflop_checkins c
                                   INNER JOIN bellyflop_businesses b
                                     ON b.id = c.business_id
-                                  WHERE b.chain_id = 24899
+                                  WHERE b.chain_id = %s
                                   ORDER BY 2, 3, 4
                                 ),
                                 checkins_from_users_with_10 AS (
@@ -161,11 +164,21 @@ def time_between_visits (chain_id):
                                   FROM checkins_bucketed
                                   GROUP BY 1
                                 )
+                                select * from (
                                 SELECT
-                                  AVG(one_to_two) avg_one_to_two,
-                                  AVG(four_to_five) avg_four_to_five,
-                                  AVG(nine_to_ten) avg_nine_to_ten
+                                  'First to Second Visit', AVG(one_to_two)
                                 FROM checkins_pivoted
+                                  group by 1
+                                UNION ALL
+                                SELECT
+                                  'Fourth to Fifth Visit', AVG(four_to_five)
+                                FROM checkins_pivoted
+                                  GROUP BY 1
+                                UNION ALL
+                                SELECT
+                                  'Ninth to Tenth Visit',  AVG(nine_to_ten)
+                                FROM checkins_pivoted
+                                  GROUP BY 1) subq order by 1
         """ % (chain_id), engine)
     return result
 

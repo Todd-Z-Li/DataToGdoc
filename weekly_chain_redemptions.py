@@ -18,10 +18,9 @@ creds=json.load(open("cred.json"))
 name=creds["redshift"]["name"]
 pw=creds["redshift"]["pw"]
 
-print name, pw
 chain_id = 12944
 year=2011
-ENGINE_STRING = "postgresql+psycopg2://"+name+":"+pw+"@belly-dw.ccv9wuksfoxg.us-east-1.redshift.amazonaws.com:5439/belly_dw?sslmode=require"
+ENGINE_STRING = "postgresql+psycopg2://"+name+":"+pw+"@belly-dw-sql.bellycard.com:5439/belly_dw?sslmode=require"
 today = datetime.datetime.now()
 
 # business_id = 13035
@@ -38,6 +37,7 @@ def get_biz_users(chain_id, year):
          where r.chain_id = %d and extract(year from p.created_at) >= %d
          group by 1,2,3,4,5,6
         """ % (chain_id,year), engine)
+
     return business_users_results
 
 def main(chain_id, year):
@@ -48,6 +48,12 @@ def main(chain_id, year):
         if len(sys.argv)>2:
             year=int(sys.argv[2])
     result = get_biz_users(chain_id,year)
+    rs=[1,2]
+    print json.loads("["+json.dumps([result.columns.tolist(),result.columns.tolist()])+"]")
+ #   print result.to_dict()
+ #   print result.msgpack()
+#    print result.to_string()
+
     resultpiv= pd.pivot_table(result, values='purchase_count', index=['business_id','description'], columns=['year','week'], aggfunc=np.sum)
     resultpiv.to_csv(path_or_buf=str(chain_id)+" "+str(year)+" weekly redemption report CREATED AT "+str(today.date())+".csv",encoding='utf-8')
     #print resultpiv

@@ -14,8 +14,8 @@ def monthly_checkin_combo (array_data, chartrow, chartcol):
                   hAxis: {title: 'Month'},
                   seriesType: 'bars',
                   series: {1: {type: 'line'}},
-                  'width':500,
-                  'height':300,
+                  'width':700,
+                  'height':400,
                   legend: { position: 'bottom', maxLines: 1 }
                     };
 
@@ -37,8 +37,8 @@ def checkins_per_location_bar (array_data, chartrow, chartcol):
                   vAxis: {title: 'Location'},
                   hAxis: {title: 'Checkins'},
                   bar: {groupWidth: "80%"},
-                  width:500,
-                  height:300,
+                  'width':700,
+                  'height':400,
                   legend: { position: 'bottom', maxLines: 1 }
                     };
 
@@ -58,9 +58,9 @@ def users_per_location_bar (array_data, chartrow, chartcol):
         var users_per_location_bar_options = {'title':'Users per Location',
                   vAxis: {title: 'Location'},
                   hAxis: {title: 'Users'},
-                  bar: {groupWidth: "80%"},
-                  width:500,
-                  height:300,
+                  bar: {groupWidth: "80%%"},
+                  'width':700,
+                  'height':400,
                   legend: { position: 'bottom', maxLines: 1 }
                     };
 
@@ -75,14 +75,14 @@ def users_per_location_bar (array_data, chartrow, chartcol):
 def users_and_checkins_per_location_column (array_data, chartrow, chartcol):
     fn_txt= """
 
-        var users_and_checkins_per_location_column_data = new google.visualization.arrayToDataTable(%s , false);
+        var users_and_checkins_per_location_column_data = new google.visualization.arrayToDataTable( %s , false);
 
         var users_and_checkins_per_location_column_options = {'title':'Total Users and Checkins per Location',
                   vAxis: {title: 'Users and Checkins'},
                   hAxis: {title: 'Location'},
-                  bar: {groupWidth: "80%"},
-                  width:500,
-                  height:300,
+                  bar: {groupWidth: '80%%'},
+                  'width':700,
+                  'height':400,
                   legend: { position: 'bottom', maxLines: 1 }
                     };
 
@@ -102,13 +102,12 @@ def time_between_visits_column (array_data, chartrow, chartcol):
         var time_between_visits_column_data = new google.visualization.arrayToDataTable(%s , false);
 
         var time_between_visits_column_options = {'title':'Time Between Visits',
-                  subtitle: 'From Loyal Members with 11 or more Visits'
+                  subtitle: 'From Loyal Members with 11 or more Visits',
                   vAxis: {title: 'Average Days Between Visits'},
                   hAxis: {title: 'Visit Number'},
-                  bar: {groupWidth: "80%"},
-                  width:500,
-                  height:300,
-                  legend: { position: 'bottom', maxLines: 1 }
+                  'width':700,
+                  'height':400,
+                  legend: 'none'
                     };
 
         var time_between_visits_column_chart = new google.visualization.ColumnChart(document.getElementById('chart_div%d%d'));
@@ -124,12 +123,13 @@ def avg_monthly_users_and_checkins_bubble (array_data, chartrow, chartcol):
 
         var avg_monthly_users_and_checkins_bubble_data = new google.visualization.arrayToDataTable(%s , false);
 
-        var avg_monthly_users_and_checkins_bubble_options = {'title':'Location Success: Average Monthly Signups and Checkins',
-                  vAxis: {title: 'Average Monthly Users'},
+        var avg_monthly_users_and_checkins_bubble_options = {'title':'Location Success: Average Monthly New Users and Checkins',
+                  vAxis: {title: 'Average Monthly New Users'},
                   hAxis: {title: 'Average Monthly Checkins'},
-                  width:500,
-                  height:300,
-                  legend: top
+                  'width':700,
+                  'height':400,
+                  bubble: {textStyle: {fontSize: 11}},
+                  legend: 'none'
                     };
 
         var avg_monthly_users_and_checkins_bubble_chart = new google.visualization.BubbleChart(document.getElementById('chart_div%d%d'));
@@ -140,4 +140,26 @@ def avg_monthly_users_and_checkins_bubble (array_data, chartrow, chartcol):
 
     return fn_txt
 
+
+def rewards_table (array_data, chartrow, chartcol):
+    fn_txt= """
+
+        var rewards_table_data = new google.visualization.arrayToDataTable(%s , false);
+
+        var rewards_table_options = {'title':'Location Success: Average Monthly New Users and Checkins',
+                  vAxis: {title: 'Average Monthly New Users'},
+                  hAxis: {title: 'Average Monthly Checkins'},
+                  'width':700,
+                  'height':400,
+                  bubble: {textStyle: {fontSize: 11}},
+                  legend: 'none'
+                    };
+
+        var rewards_table_chart = new google.visualization.Table(document.getElementById('chart_div%d%d'));
+        rewards_table_chart.draw(rewards_table_data, rewards_table_options);
+
+
+    """ % (array_data, chartrow, chartcol)
+
+    return fn_txt
 
