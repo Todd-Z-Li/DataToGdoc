@@ -22,7 +22,7 @@ pw=creds["redshift"]["pw"]
 chain_id = 12944
 
 year=2011
-ENGINE_STRING = "postgresql+psycopg2://"+name+":"+pw+"@belly-dw.ccv9wuksfoxg.us-east-1.redshift.amazonaws.com:5439/belly_dw?sslmode=require"
+ENGINE_STRING = "postgresql+psycopg2://"+name+":"+pw+"###DATABASE URL###"
 today = datetime.datetime.now()
 
 #need to get the HTML template for google charts:
