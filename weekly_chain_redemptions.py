@@ -20,7 +20,7 @@ pw=creds["redshift"]["pw"]
 
 chain_id = 12944
 year=2011
-ENGINE_STRING = "postgresql+psycopg2://"+name+":"+pw+"@belly-dw-sql.bellycard.com:5439/belly_dw?sslmode=require"
+ENGINE_STRING = "postgresql+psycopg2://"+name+":"+pw+"@###URL FOR DATABSE###?sslmode=require"
 today = datetime.datetime.now()
 
 # business_id = 13035
