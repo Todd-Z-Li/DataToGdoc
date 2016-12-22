@@ -22,7 +22,7 @@ from apiclient import errors
 #       "token_uri": "https://accounts.google.com/o/oauth2/token"
 #     }
 #   }
-CLIENTSECRET_LOCATION = 'C:\Users\Belly Strategy\.credentials\client_secret.json'
+CLIENTSECRET_LOCATION = '##JSON Credential Location##'
 REDIRECT_URI = 'localhost:80'
 SCOPES = [
     'https://www.googleapis.com/auth/drive.file',
