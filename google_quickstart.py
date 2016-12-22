@@ -16,7 +16,7 @@ except ImportError:
     flags = None
 
 SCOPES = ['https://www.googleapis.com/auth/drive.file', 'https://www.googleapis.com/auth/drive.metadata.readonly']
-CLIENT_SECRET_FILE = 'C:\Users\Belly Strategy\.credentials\client_secret.json'
+CLIENT_SECRET_FILE = '###URL FOR SECRET###'
 APPLICATION_NAME = 'Python App'
 
 
